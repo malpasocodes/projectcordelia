@@ -179,11 +179,17 @@ class TEIParser:
                     if speaker_text:
                         content.append({"type": "speaker", "text": speaker_text})
                 
-                # Get all paragraphs in this speech
+                # Get all paragraphs in this speech (prose)
                 for p in elem.findall('./tei:p', TEI_NS):
                     p_text = self._get_element_text(p)
                     if p_text:
                         content.append({"type": "line", "text": p_text})
+                
+                # Get all lines in this speech (verse)
+                for l in elem.findall('./tei:l', TEI_NS):
+                    l_text = self._get_element_text(l)
+                    if l_text:
+                        content.append({"type": "line", "text": l_text})
         
         return content
     
