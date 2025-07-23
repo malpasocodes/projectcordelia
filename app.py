@@ -2,6 +2,17 @@ import streamlit as st
 from pathlib import Path
 from parser import TEIParser, Play
 
+# King Lear Synopsis (from dataset)
+KING_LEAR_SYNOPSIS = """
+## Synopsis
+
+*King Lear* dramatizes the story of an aged king of ancient Britain, whose plan to divide his kingdom among his three daughters ends tragically. When he tests each by asking how much she loves him, the older daughters, Goneril and Regan, flatter him. The youngest, Cordelia, does not, and Lear disowns and banishes her. She marries the king of France. Goneril and Regan turn on Lear, leaving him to wander madly in a furious storm.
+
+Meanwhile, the Earl of Gloucester's illegitimate son Edmund turns Gloucester against his legitimate son, Edgar. Gloucester, appalled at the daughters' treatment of Lear, gets news that a French army is coming to help Lear. Edmund betrays Gloucester to Regan and her husband, Cornwall, who puts out Gloucester's eyes and makes Edmund the Earl of Gloucester.
+
+Cordelia and the French army save Lear, but the army is defeated. Edmund imprisons Cordelia and Lear. Edgar then mortally wounds Edmund in a trial by combat. Dying, Edmund confesses that he has ordered the deaths of Cordelia and Lear. Before they can be rescued, Lear brings in Cordelia's body and then he himself dies.
+"""
+
 @st.cache_resource
 def load_play() -> Play:
     """Load and parse the King Lear XML file."""
@@ -55,6 +66,16 @@ def main():
         </style>
         """, unsafe_allow_html=True)
         
+        # Characters button
+        if st.button("👥 Characters", key="characters", use_container_width=True):
+            st.session_state.current_view = "characters"
+            st.rerun()
+        
+        # Synopsis button
+        if st.button("📜 Synopsis", key="synopsis", use_container_width=True):
+            st.session_state.current_view = "synopsis"
+            st.rerun()
+        
         # Entire Play button
         if st.button("📖 Entire Play", key="entire_play", use_container_width=True):
             st.session_state.current_view = "full"
@@ -91,7 +112,52 @@ def main():
         st.title(play.title)
         
         # Display content based on current view and selection
-        if st.session_state.current_view == "full":
+        if st.session_state.current_view == "characters":
+            st.subheader("Characters")
+            st.write(f"Total characters: {len(play.characters)}")
+            
+            # Display characters in a scrollable container
+            with st.container(height=600, border=True):
+                # Group characters by their groups if available
+                main_characters = []
+                grouped_characters = {}
+                
+                for char in play.characters:
+                    if char.group:
+                        if char.group not in grouped_characters:
+                            grouped_characters[char.group] = []
+                        grouped_characters[char.group].append(char)
+                    else:
+                        main_characters.append(char)
+                
+                # Display main characters first
+                if main_characters:
+                    st.markdown("### Main Characters")
+                    for char in main_characters:
+                        if char.description:
+                            st.markdown(f"**{char.name}** - {char.description}")
+                        else:
+                            st.markdown(f"**{char.name}**")
+                    st.markdown("")
+                
+                # Display grouped characters
+                for group_name, chars in grouped_characters.items():
+                    st.markdown(f"### {group_name}")
+                    for char in chars:
+                        if char.description:
+                            st.markdown(f"**{char.name}** - {char.description}")
+                        else:
+                            st.markdown(f"**{char.name}**")
+                    st.markdown("")
+        
+        elif st.session_state.current_view == "synopsis":
+            st.subheader("Synopsis")
+            
+            # Display synopsis in a scrollable container
+            with st.container(height=600, border=True):
+                st.markdown(KING_LEAR_SYNOPSIS)
+        
+        elif st.session_state.current_view == "full":
             st.subheader(f"Complete text of {play.title}")
             st.write(f"Acts: {play.get_act_count()} | Total scenes: {play.get_total_scenes()}")
             

@@ -30,6 +30,18 @@ uv run streamlit run app.py
 # Access at http://localhost:8501
 ```
 
+### Testing
+```bash
+# Run all tests (from project root)
+python tests/test_app.py
+python tests/test_formatting.py
+python tests/test_navigation.py
+
+# Run specific test for debugging
+python tests/debug_text.py
+python tests/test_all_views.py
+```
+
 ## Architecture
 
 ### File Structure

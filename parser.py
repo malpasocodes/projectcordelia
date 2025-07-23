@@ -1,11 +1,17 @@
 from dataclasses import dataclass
-from typing import List, Dict
+from typing import List, Dict, Optional
 from pathlib import Path
 import xml.etree.ElementTree as ET
 from bs4 import BeautifulSoup
 
 # TEI namespace
 TEI_NS = {'tei': 'http://www.tei-c.org/ns/1.0'}
+
+@dataclass
+class Character:
+    name: str
+    description: Optional[str] = None
+    group: Optional[str] = None
 
 @dataclass
 class Scene:
@@ -66,6 +72,7 @@ class Act:
 class Play:
     title: str
     acts: List[Act]
+    characters: List[Character]
     
     def get_act_count(self) -> int:
         """Return the number of acts in the play."""
@@ -100,7 +107,10 @@ class TEIParser:
         # Get all acts (without scene details for now)
         acts = self._get_acts()
         
-        return Play(title=title, acts=acts)
+        # Get characters
+        characters = self._get_characters()
+        
+        return Play(title=title, acts=acts, characters=characters)
     
     def _get_play_title(self) -> str:
         """Extract the play title from the TEI header."""
@@ -258,3 +268,54 @@ class TEIParser:
             formatted_lines.append("")
         
         return '\n'.join(formatted_lines).strip()
+    
+    def _get_characters(self) -> List[Character]:
+        """Extract character information from the TEI castList."""
+        characters = []
+        
+        # Find the castList in the front matter
+        cast_list = self.root.find('.//tei:front/tei:castList', TEI_NS)
+        if cast_list is None:
+            return characters
+        
+        # First pass: Find castGroups and their headers
+        cast_groups = {}
+        for cast_group in cast_list.findall('.//tei:castGroup', TEI_NS):
+            head_elem = cast_group.find('./tei:head', TEI_NS)
+            group_name = None
+            if head_elem is not None and head_elem.text:
+                group_name = head_elem.text.strip()
+            
+            # Mark all castItems in this group
+            for cast_item in cast_group.findall('./tei:castItem', TEI_NS):
+                cast_groups[id(cast_item)] = group_name
+        
+        # Process all castItem elements
+        for cast_item in cast_list.findall('.//tei:castItem', TEI_NS):
+            # Skip items that are references to other items (corresp attribute)
+            if cast_item.get('corresp'):
+                continue
+                
+            # Get character name
+            name_elem = cast_item.find('.//tei:name', TEI_NS)
+            if name_elem is None or not name_elem.text:
+                continue
+                
+            name = name_elem.text.strip()
+            
+            # Get character description
+            desc_elem = cast_item.find('.//tei:roleDesc', TEI_NS)
+            description = None
+            if desc_elem is not None:
+                description = self._get_element_text(desc_elem).strip()
+            
+            # Check if this castItem is in a group
+            group = cast_groups.get(id(cast_item))
+            
+            characters.append(Character(
+                name=name,
+                description=description,
+                group=group
+            ))
+        
+        return characters
