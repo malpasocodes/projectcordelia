@@ -34,50 +34,55 @@ def main():
     # Sidebar navigation
     with sidebar:
         st.title("Navigation")
-        st.write("Select a section to read:")
         
-        # Navigation options
-        view_mode = st.radio(
-            "View Mode",
-            ["Entire Play", "By Act", "By Scene"],
-            key="view_mode"
-        )
+        # Custom CSS for box styling
+        st.markdown("""
+        <style>
+        div.stButton > button {
+            background-color: #f0f2f6;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+            margin: 0.25rem 0;
+            width: 100%;
+            text-align: left;
+            transition: all 0.2s;
+        }
+        div.stButton > button:hover {
+            background-color: #e0e2e6;
+            border-color: #999;
+        }
+        </style>
+        """, unsafe_allow_html=True)
         
-        st.divider()
+        # Entire Play button
+        if st.button("📖 Entire Play", key="entire_play", use_container_width=True):
+            st.session_state.current_view = "full"
+            st.rerun()
         
-        # Act selection
-        if view_mode == "By Act":
-            st.subheader("Select Act")
-            # Use vertical layout for better readability in narrow sidebar
-            for act in play.acts:
-                if st.button(f"Act {act.number}", key=f"act_{act.number}", use_container_width=True):
+        # Act and Scene navigation
+        for act in play.acts:
+            # Expand only if this act is currently selected
+            expanded = (
+                (st.session_state.current_view == "act" and st.session_state.current_act == act.number) or
+                (st.session_state.current_view == "scene" and st.session_state.current_act == act.number)
+            )
+            with st.expander(f"📁 Act {act.number}", expanded=expanded):
+                # Act button
+                if st.button(f"📄 Act {act.number} (All Scenes)", 
+                           key=f"act_{act.number}", 
+                           use_container_width=True):
                     st.session_state.current_view = "act"
                     st.session_state.current_act = act.number
                     st.rerun()
-        
-        # Scene selection
-        elif view_mode == "By Scene":
-            st.subheader("Select Act")
-            # Use vertical layout for act selection in narrow sidebar
-            for act in play.acts:
-                if st.button(f"Act {act.number}", key=f"scene_act_{act.number}", use_container_width=True):
-                    st.session_state.current_act = act.number
-                    st.rerun()
-            
-            st.divider()
-            
-            # Scene buttons for selected act
-            current_act = play.get_act(st.session_state.current_act)
-            if current_act and current_act.scenes:
-                st.subheader(f"Act {current_act.number} Scenes")
                 
-                # Use vertical layout for scene buttons too for consistency
-                for scene in current_act.scenes:
-                    if st.button(f"Scene {scene.number}", 
-                               key=f"scene_{current_act.number}_{scene.number}", 
+                # Scene buttons
+                for scene in act.scenes:
+                    if st.button(f"　　📄 Scene {scene.number}", 
+                               key=f"scene_{act.number}_{scene.number}", 
                                use_container_width=True):
                         st.session_state.current_view = "scene"
-                        st.session_state.current_act = current_act.number
+                        st.session_state.current_act = act.number
                         st.session_state.current_scene = scene.number
                         st.rerun()
     
@@ -86,7 +91,7 @@ def main():
         st.title(play.title)
         
         # Display content based on current view and selection
-        if view_mode == "Entire Play":
+        if st.session_state.current_view == "full":
             st.subheader(f"Complete text of {play.title}")
             st.write(f"Acts: {play.get_act_count()} | Total scenes: {play.get_total_scenes()}")
             
@@ -102,44 +107,38 @@ def main():
                         st.markdown(formatted_content)
                         st.markdown("")  # Add spacing between scenes
             
-        elif view_mode == "By Act":
-            if st.session_state.current_view == "act":
-                current_act = play.get_act(st.session_state.current_act)
-                if current_act:
-                    st.subheader(f"{current_act.get_formatted_title()}")
-                    st.write(f"Scenes: {current_act.get_scene_count()}")
-                    
-                    # Display all scenes in this act
-                    with st.container(height=600, border=True):
-                        for scene in current_act.scenes:
-                            st.markdown(f"## {scene.title}")
-                            formatted_content = scene.get_formatted_content()
-                            st.markdown(formatted_content)
-                            st.markdown("---")  # Divider between scenes
-                else:
-                    st.error("Act not found")
-            else:
-                st.info("Select an act from the sidebar to view its content")
+        elif st.session_state.current_view == "act":
+            current_act = play.get_act(st.session_state.current_act)
+            if current_act:
+                st.subheader(f"{current_act.get_formatted_title()}")
+                st.write(f"Scenes: {current_act.get_scene_count()}")
                 
-        elif view_mode == "By Scene":
-            if st.session_state.current_view == "scene":
-                current_act = play.get_act(st.session_state.current_act)
-                if current_act:
-                    current_scene = current_act.get_scene(st.session_state.current_scene)
-                    if current_scene:
-                        st.subheader(current_scene.title)
-                        st.write(f"Content: {len(current_scene.content)} items")
-                        
-                        # Display the selected scene with full formatting
-                        with st.container(height=600, border=True):
-                            formatted_content = current_scene.get_formatted_content()
-                            st.markdown(formatted_content)
-                    else:
-                        st.error("Scene not found")
-                else:
-                    st.error("Act not found")
+                # Display all scenes in this act
+                with st.container(height=600, border=True):
+                    for scene in current_act.scenes:
+                        st.markdown(f"## {scene.title}")
+                        formatted_content = scene.get_formatted_content()
+                        st.markdown(formatted_content)
+                        st.markdown("---")  # Divider between scenes
             else:
-                st.info("Select an act and scene from the sidebar to view content")
+                st.error("Act not found")
+                
+        elif st.session_state.current_view == "scene":
+            current_act = play.get_act(st.session_state.current_act)
+            if current_act:
+                current_scene = current_act.get_scene(st.session_state.current_scene)
+                if current_scene:
+                    st.subheader(current_scene.title)
+                    st.write(f"Content: {len(current_scene.content)} items")
+                    
+                    # Display the selected scene with full formatting
+                    with st.container(height=600, border=True):
+                        formatted_content = current_scene.get_formatted_content()
+                        st.markdown(formatted_content)
+                else:
+                    st.error("Scene not found")
+            else:
+                st.error("Act not found")
 
 if __name__ == "__main__":
     main()
