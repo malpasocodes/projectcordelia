@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 """Test the basic app functionality."""
 
+import sys
 from pathlib import Path
-from parser import TEIParser
+
+# Add parent directory to path to import our parser module
+sys.path.insert(0, str(Path(__file__).parent.parent))
+import parser as tei_parser
 
 def test_app_components():
     # Test that we can load the play
     xml_path = Path("data/king-lear_TEIsimple_FolgerShakespeare.xml")
-    parser = TEIParser(xml_path)
+    parser = tei_parser.TEIParser(xml_path)
     play = parser.parse()
     
     print(f"✓ Play loaded: {play.title}")
