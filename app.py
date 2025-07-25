@@ -4,9 +4,7 @@ from parser import TEIParser, Play
 
 # King Lear Synopsis (from dataset)
 KING_LEAR_SYNOPSIS = """
-## Synopsis
-
-*King Lear* dramatizes the story of an aged king of ancient Britain, whose plan to divide his kingdom among his three daughters ends tragically. When he tests each by asking how much she loves him, the older daughters, Goneril and Regan, flatter him. The youngest, Cordelia, does not, and Lear disowns and banishes her. She marries the king of France. Goneril and Regan turn on Lear, leaving him to wander madly in a furious storm.
+King Lear dramatizes the story of an aged king of ancient Britain, whose plan to divide his kingdom among his three daughters ends tragically. When he tests each by asking how much she loves him, the older daughters, Goneril and Regan, flatter him. The youngest, Cordelia, does not, and Lear disowns and banishes her. She marries the king of France. Goneril and Regan turn on Lear, leaving him to wander madly in a furious storm.
 
 Meanwhile, the Earl of Gloucester's illegitimate son Edmund turns Gloucester against his legitimate son, Edgar. Gloucester, appalled at the daughters' treatment of Lear, gets news that a French army is coming to help Lear. Edmund betrays Gloucester to Regan and her husband, Cornwall, who puts out Gloucester's eyes and makes Edmund the Earl of Gloucester.
 
@@ -29,7 +27,7 @@ def main():
     
     # Initialize session state
     if "current_view" not in st.session_state:
-        st.session_state.current_view = "full"
+        st.session_state.current_view = "home"
     if "current_act" not in st.session_state:
         st.session_state.current_act = "1"
     if "current_scene" not in st.session_state:
@@ -65,6 +63,11 @@ def main():
         }
         </style>
         """, unsafe_allow_html=True)
+        
+        # Home button
+        if st.button("🏠 Home", key="home", use_container_width=True):
+            st.session_state.current_view = "home"
+            st.rerun()
         
         # Characters button
         if st.button("👥 Characters", key="characters", use_container_width=True):
@@ -109,10 +112,42 @@ def main():
     
     # Main content area
     with main_area:
-        st.title(play.title)
-        
         # Display content based on current view and selection
-        if st.session_state.current_view == "characters":
+        if st.session_state.current_view == "home":
+            # Center the title with dark crimson color
+            st.markdown("<h1 style='text-align: center; color: #8B0000;'>King Lear</h1>", unsafe_allow_html=True)
+            
+            # Add separator
+            st.markdown("---")
+            
+            # Create two columns with adjusted proportions
+            col1, col2 = st.columns([1, 1.5])
+            
+            with col1:
+                # Add spacing to align image with paragraph
+                st.markdown("<br><br>", unsafe_allow_html=True)
+                # Center the image and resize to 75%
+                _, center, _ = st.columns([1, 6, 1])
+                with center:
+                    st.image("images/shakespeare-houghton.jpg", width=300)
+            
+            with col2:
+                # Display the synopsis
+                st.markdown("### Synopsis")
+                st.markdown(KING_LEAR_SYNOPSIS)
+            
+            # Add separator and acknowledgment
+            st.markdown("---")
+            st.markdown(
+                "<p style='text-align: center; color: #666666; font-size: 0.9em;'>"
+                "Text sourced from the <a href='https://www.folger.edu' target='_blank' style='color: #666666;'>Folger Shakespeare Library</a>. "
+                "Any errors in presentation or formatting are not attributable to the Folger Shakespeare Library."
+                "</p>", 
+                unsafe_allow_html=True
+            )
+        
+        elif st.session_state.current_view == "characters":
+            st.markdown("<h1 style='text-align: center; color: #8B0000;'>King Lear</h1>", unsafe_allow_html=True)
             st.subheader("Characters")
             st.write(f"Total characters: {len(play.characters)}")
             
@@ -151,6 +186,7 @@ def main():
                     st.markdown("")
         
         elif st.session_state.current_view == "synopsis":
+            st.markdown("<h1 style='text-align: center; color: #8B0000;'>King Lear</h1>", unsafe_allow_html=True)
             st.subheader("Synopsis")
             
             # Display synopsis in a scrollable container
@@ -158,6 +194,7 @@ def main():
                 st.markdown(KING_LEAR_SYNOPSIS)
         
         elif st.session_state.current_view == "full":
+            st.markdown("<h1 style='text-align: center; color: #8B0000;'>King Lear</h1>", unsafe_allow_html=True)
             st.subheader(f"Complete text of {play.title}")
             st.write(f"Acts: {play.get_act_count()} | Total scenes: {play.get_total_scenes()}")
             
@@ -174,6 +211,7 @@ def main():
                         st.markdown("")  # Add spacing between scenes
             
         elif st.session_state.current_view == "act":
+            st.markdown("<h1 style='text-align: center; color: #8B0000;'>King Lear</h1>", unsafe_allow_html=True)
             current_act = play.get_act(st.session_state.current_act)
             if current_act:
                 st.subheader(f"{current_act.get_formatted_title()}")
@@ -190,6 +228,7 @@ def main():
                 st.error("Act not found")
                 
         elif st.session_state.current_view == "scene":
+            st.markdown("<h1 style='text-align: center; color: #8B0000;'>King Lear</h1>", unsafe_allow_html=True)
             current_act = play.get_act(st.session_state.current_act)
             if current_act:
                 current_scene = current_act.get_scene(st.session_state.current_scene)

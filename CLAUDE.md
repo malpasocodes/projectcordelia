@@ -45,9 +45,10 @@ python tests/test_all_views.py
 ## Architecture
 
 ### File Structure
-- `app.py` - Streamlit web application (✓ COMPLETED)
+- `app.py` - Streamlit web application with home page (✓ COMPLETED)
 - `parser.py` - TEI XML parser and data models (✓ COMPLETED)
 - `data/` - Directory containing King Lear TEI XML file (✓ COMPLETED)
+- `images/` - Shakespeare portrait for home page (✓ COMPLETED)
 - `docs/` - Comprehensive project documentation (✓ COMPLETED)
 
 ### Key Components
@@ -61,11 +62,14 @@ python tests/test_all_views.py
 
 2. **Streamlit App** (in `app.py`):
    - Two-column layout: navigation sidebar + main content
+   - Beautiful home page with Shakespeare portrait and synopsis
    - Session state management for navigation persistence
    - Cached data loading with `@st.cache_resource`
-   - Three view modes: Entire Play, By Act, By Scene
+   - Six view modes: Home, Characters, Synopsis, Entire Play, By Act, By Scene
    - Interactive navigation with full-width buttons
    - Scrollable content containers with 600px height
+   - Dark crimson (#8B0000) title styling throughout
+   - Folger Shakespeare Library attribution
 
 ### Data Models
 ```python
@@ -102,11 +106,12 @@ class Play:
 ## Implementation Notes
 
 ### Session State Keys
-- `current_view`: "full" | "act" | "scene"
+- `current_view`: "home" | "characters" | "synopsis" | "full" | "act" | "scene"
 - `current_act`: Act number (1-5)
 - `current_scene`: Scene number
 
 ### Button Keys Format
+- Navigation buttons: `home`, `characters`, `synopsis`, `entire_play`
 - Act buttons: `act_1`, `act_2`, etc.
 - Scene buttons: `scene_1_1`, `scene_2_3`, etc.
 - Scene act selection: `scene_act_1`, `scene_act_2`, etc.
@@ -125,20 +130,29 @@ class Play:
 
 ## Quick Testing Steps
 1. Run `uv run streamlit run app.py`
-2. Test "Entire Play" view (shows all content)
-3. Test "By Act" navigation and content display
-4. Test "By Scene" navigation and content display  
-5. Verify text formatting (bold speakers, italic stage directions)
-6. Check button text displays horizontally
+2. Test "Home" page (Shakespeare portrait + synopsis)
+3. Test "Characters" view (character list with descriptions)
+4. Test "Synopsis" view (dedicated synopsis page)
+5. Test "Entire Play" view (shows all content)
+6. Test "By Act" navigation and content display
+7. Test "By Scene" navigation and content display  
+8. Verify text formatting (bold speakers, italic stage directions)
+9. Check button text displays horizontally
+10. Verify dark crimson titles and Folger attribution
 
 ## Implementation Status - v0.1 COMPLETE ✓
 - ✅ Project structure and dependencies
 - ✅ TEI XML parser with proper text extraction
 - ✅ Data models with formatting methods
-- ✅ Complete Streamlit app with three view modes
+- ✅ Complete Streamlit app with six view modes
+- ✅ Beautiful home page with Shakespeare portrait
+- ✅ Character list view with descriptions
+- ✅ Synopsis dedicated view
 - ✅ Interactive navigation system
 - ✅ Markdown text formatting
+- ✅ Dark crimson title styling
 - ✅ Session state management
 - ✅ Cached data loading
 - ✅ All 5 acts and 25 scenes accessible
 - ✅ Proper button layout and text display
+- ✅ Folger Shakespeare Library attribution

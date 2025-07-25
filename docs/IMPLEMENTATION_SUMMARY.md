@@ -22,10 +22,12 @@ All phases from the original project plan have been completed:
 ### 🎯 Key Features Delivered
 
 #### Navigation System
-- **Three View Modes**: Entire Play, By Act, By Scene
+- **Six View Modes**: Home, Characters, Synopsis, Entire Play, By Act, By Scene
+- **Beautiful Home Page**: Shakespeare portrait with play synopsis in two-column layout
 - **Interactive Sidebar**: Full-width buttons with proper horizontal text
 - **Session State**: Navigation persistence across interactions
 - **Complete Coverage**: All 5 acts and 25 scenes accessible
+- **Elegant Styling**: Dark crimson (#8B0000) titles throughout
 
 #### Text Processing & Display
 - **TEI XML Parser**: Handles complex XML structure with proper namespaces
@@ -38,9 +40,11 @@ All phases from the original project plan have been completed:
 
 #### User Interface
 - **Responsive Layout**: Sidebar navigation + main content area
+- **Home Page Design**: Two-column layout with Shakespeare portrait and synopsis
 - **Scrollable Content**: 600px containers for long text sections
 - **Performance**: Cached data loading with `@st.cache_resource`
 - **User Experience**: Clear navigation flow and content organization
+- **Attribution**: Folger Shakespeare Library acknowledgment with link
 
 ## Technical Architecture
 
@@ -69,12 +73,13 @@ TEI XML File → TEIParser → Play Object → Streamlit UI → User Interaction
 ### File Structure
 ```
 ProjectCordelia/
-├── app.py                          # Main Streamlit application
+├── app.py                          # Main Streamlit application (with home page)
 ├── parser.py                       # TEI parser and data models
 ├── data/king-lear_TEIsimple_*.xml  # Shakespeare source text
+├── images/shakespeare-houghton.jpg # Shakespeare portrait for home page
 ├── pyproject.toml                  # Dependencies (streamlit, lxml, beautifulsoup4)
 ├── CLAUDE.md                       # Development guidance (updated)
-├── README.md                       # User documentation (created)
+├── README.md                       # User documentation (updated)
 └── docs/                           # Comprehensive documentation
 ```
 
@@ -95,6 +100,10 @@ ProjectCordelia/
 ### Problem 4: Performance with Large Text
 **Issue**: Parsing large XML files repeatedly
 **Solution**: Streamlit's `@st.cache_resource` decorator for one-time parsing
+
+### Problem 5: Landing Page Design
+**Issue**: Need for an attractive entry point to the application
+**Solution**: Two-column home page with Shakespeare portrait, synopsis, and Folger attribution
 
 ## Current Statistics
 
